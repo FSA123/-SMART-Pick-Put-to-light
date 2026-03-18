@@ -1,57 +1,54 @@
 import cv2
 from ultralytics import YOLO
 import serial
-import time
+from db_manager import WarehouseDB
 
-# --- CONFIG ---
-SERIAL_PORT = 'COM3' 
+# 1. Inițializare
+db = WarehouseDB()
 model = YOLO('best.pt')
-
-# Define our order exactly as you requested
-CLASSES_ORDER = [
-    "Resistor", "Capacitor", "Button", "Inductor", 
-    "Transistor", "Transformer", "Diode", "Potentiometer"
-]
+active_bin = None  # Variabilă de stare pentru a ști ce bin așteptăm să fie confirmat
 
 try:
-    esp32 = serial.Serial(SERIAL_PORT, 115200, timeout=0.1)
-    time.sleep(2)
+    ser = serial.Serial('COM3', 115200, timeout=0.05) # Timeout mic pentru a nu bloca video
 except:
-    print("Check your ESP32 connection!")
-    exit()
+    ser = None
 
 cap = cv2.VideoCapture(0)
 
-while True:
-    ret, frame = cap.read()
-    if not ret: break
+while cap.isOpened():
+    success, frame = cap.read()
+    if not success: break
 
-    results = model(frame, conf=0.5, verbose=False)
+    # --- SECȚIUNEA 1: DETECȚIE ȘI COMANDĂ ---
+    results = model.predict(frame, conf=0.7, verbose=False)
     
-    # Start with a "clean slate" (all LEDs off)
-    bitmask = 0
-    
-    # Look at every object the AI found
-    for box in results[0].boxes:
-        class_id = int(box.cls)
-        class_name = model.names[class_id] # e.g., "Resistor"
-        
-        if class_name in CLASSES_ORDER:
-            # Find which LED this component belongs to
-            index = CLASSES_ORDER.index(class_name)
-            # Flip that specific bit to 1
-            bitmask |= (1 << index)
+    for r in results:
+        for box in r.boxes:
+            class_id = int(box.cls[0])
+            target_bin = db.get_bin_by_class(class_id)
 
-    # Send the final 8-bit number to ESP32
-    # We send it as a raw byte for speed
-    esp32.write(bytes([bitmask]))
+            if target_bin is not None and active_bin != target_bin:
+                if ser:
+                    ser.write(f"{target_bin}\n".encode())
+                    active_bin = target_bin # Memorăm bin-ul activat
+                print(f"Sistem: Activare Bin {target_bin} pentru Clasa {class_id}")
 
-    # Display UI
-    annotated_frame = results[0].plot()
-    cv2.imshow("Electronic Component Detector", annotated_frame)
+    # --- SECȚIUNEA 2: ASCULTARE FEEDBACK (AICI PUI CODUL) ---
+    # Verificăm buffer-ul serial la fiecare frame
+    if ser and ser.in_waiting > 0:
+        try:
+            line = ser.readline().decode('utf-8').strip()
+            if line == "CONFIRMED":
+                if active_bin is not None:
+                    db.update_stock(active_bin, -1) # Actualizăm Baza de Date
+                    print(f"LOG: Tranzacție reușită la Bin {active_bin}. Stoc actualizat.")
+                    active_bin = None # Resetăm starea după confirmare
+        except Exception as e:
+            print(f"Eroare Serial: {e}")
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # --- SECȚIUNEA 3: UI ---
+    cv2.imshow("Smart Pick-to-Light System", results[0].plot())
+    if cv2.waitKey(1) & 0xFF == ord('q'): break
 
 cap.release()
 cv2.destroyAllWindows()
