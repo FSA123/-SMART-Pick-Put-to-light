@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Hibrid Smart Pick-by-Light - Analiză Tehnică</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066ff;
+            --secondary: #00d4ff;
+            --success: #00c853;
+            --danger: #ff3d00;
+            --warning: #ffab00;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .slide {
+            width: 1100px;
+            height: 620px;
+            background-color: var(--bg);
+            border-radius: 16px;
+            padding: 50px;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .slide-header {
+            border-left: 5px solid var(--primary);
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 { font-size: 48px; margin: 0; color: var(--primary); }
+        h2 { font-size: 32px; margin: 0; }
+        h3 { font-size: 24px; color: var(--secondary); margin-bottom: 15px; }
+
+        .content { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        
+        .full-content { grid-column: span 2; }
+
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 12px; display: flex; align-items: start; gap: 10px; font-size: 18px; }
+        li i { margin-top: 5px; color: var(--secondary); }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Comparatie Tabel */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 16px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--secondary); }
+        .highlight-row { background: rgba(0, 102, 255, 0.1); }
+
+        /* Cost Table */
+        .cost-table { width: 100%; background: var(--card-bg); border-radius: 8px; }
+        .total-row { font-weight: 700; color: var(--success); font-size: 20px; }
+
+        .icon-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .pros { color: var(--success); }
+        .cons { color: var(--warning); }
+
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            right: 50px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: TITLU -->
+<div class="slide">
+    <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <span class="tag">PROIECT AUTOMATIZARE LOGISTICĂ</span>
+        <h1 style="font-size: 60px;">Smart Pick-by-Light 2.0</h1>
+        <h2 style="color: var(--text-dim); font-weight: 400; margin-top: 10px;">Computer Vision Identifcation & Sensor-Based Validation</h2>
+        <div style="width: 200px; height: 4px; background: var(--primary); margin: 40px 0;"></div>
+        <p style="font-size: 20px; max-width: 700px;">Un sistem cyber-fizic conceput pentru eliminarea erorilor de sortare și creșterea debitului operațional în gestiunea componentelor electronice.</p>
+    </div>
+    <div class="footer">EE & CS Engineering | 2024</div>
+</div>
+
+<!-- SLIDE 2: ARHITECTURA HARDWARE -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Arhitectura Sistemului (Hardware)</h2>
+    </div>
+    <div class="content">
+        <div>
+            <h3>Componente de Control</h3>
+            <ul>
+                <li><i class="fa-solid fa-microchip"></i> <strong>ESP32:</strong> Hub de execuție pentru LED-uri și senzori.</li>
+                <li><i class="fa-solid fa-camera"></i> <strong>USB Cam:</strong> Senzor optic pentru inferență AI.</li>
+                <li><i class="fa-solid fa-tower-broadcast"></i> <strong>VL53L0X:</strong> Senzor ToF (Laser) pentru fiecare bin (x4).</li>
+            </ul>
+            <h3>Interfață Vizuală</h3>
+            <ul>
+                <li><i class="fa-solid fa-lightbulb"></i> <strong>WS2812B:</strong> LED-uri adresabile individual.</li>
+                <li><i class="fa-solid fa-cube"></i> <strong>3D Printed Diffusers:</strong> Carcase premium din PETG.</li>
+            </ul>
+        </div>
+        <div class="icon-box" style="display: flex; flex-direction: column; justify-content: center;">
+            <p class="mono" style="color: var(--secondary); margin-bottom: 10px;">// Fluxul de Date</p>
+            <p>1. Camera trimite frame-ul la PC (Python/YOLO).<br>
+               2. PC trimite ID-ul piesei la ESP32 (Serial).<br>
+               3. ESP32 aprinde LED-ul corespunzător.<br>
+               4. Senzorul ToF confirmă prezența mâinii/obiectului.<br>
+               5. Feedback vizual final (Verde = Succes).</p>
+        </div>
+    </div>
+    <div class="footer">Slide 02/09</div>
+</div>
+
+<!-- SLIDE 3: COSTURI REALISTE (BOM) -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Analiză Buget (BOM)</h2>
+    </div>
+    <div class="full-content">
+        <table class="cost-table">
+            <thead>
+                <tr>
+                    <th>Componentă</th>
+                    <th>Cantitate</th>
+                    <th>Preț Unitar (RON)</th>
+                    <th>Total (RON)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ESP32 DevKit V1</td>
+                    <td>1</td>
+                    <td>35.00</td>
+                    <td>35.00</td>
+                </tr>
+                <tr>
+                    <td>Senzor VL53L0X (ToF)</td>
+                    <td>4</td>
+                    <td>26.00</td>
+                    <td>104.00</td>
+                </tr>
+                <tr>
+                    <td>Bandă LED WS2812B (60 LED/m)</td>
+                    <td>1m</td>
+                    <td>55.00</td>
+                    <td>55.00</td>
+                </tr>
+                <tr>
+                    <td>Sursă Alimentare 5V 10A (Industrial)</td>
+                    <td>1</td>
+                    <td>65.00</td>
+                    <td>65.00</td>
+                </tr>
+                <tr>
+                    <td>Filament PLA/PETG (Mostră 200g)</td>
+                    <td>1</td>
+                    <td>30.00</td>
+                    <td>30.00</td>
+                </tr>
+                <tr class="highlight-row total-row">
+                    <td colspan="3">INVESTIȚIE TOTALĂ (Fără PC/Cameră)</td>
+                    <td>289.00 RON</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size: 14px; margin-top: 15px; color: var(--text-dim);">* Prețurile sunt medii de piață (eMag/Robofun/Optimust Digital). Pentru scalare la 100 de bin-uri, costul per bin scade prin optimizarea surselor de alimentare.</p>
+    </div>
+    <div class="footer">Slide 03/09</div>
+</div>
+
+<!-- SLIDE 4: COMPARAȚIE HONESTĂ -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Comparativ: Sistem Manual vs. Smart CV</h2>
+    </div>
+    <div class="full-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parametru</th>
+                    <th>Metoda Tradițională (DB Search)</th>
+                    <th>Sistem Hibrid (CV + Sensors)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Viteză de Identificare</strong></td>
+                    <td>10 - 20 sec (Căutare manuală)</td>
+                    <td>&lt; 0.5 sec (Automant)</td>
+                </tr>
+                <tr>
+                    <td><strong>Confirmare Acțiune</strong></td>
+                    <td>Manuală (Tastatură/Scanner)</td>
+                    <td>Automatică (Senzor ToF)</td>
+                </tr>
+                <tr>
+                    <td><strong>Rată de Eroare</strong></td>
+                    <td>~2-3% (Eroare de citire/locație)</td>
+                    <td>&lt; 0.1% (Poka-Yoke Hardware)</td>
+                </tr>
+                <tr>
+                    <td><strong>Timp Instruire Personal</strong></td>
+                    <td>Ore/Zile (Învățare locații)</td>
+                    <td>Minute (Sistemul ghidează)</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td><strong>Productivitate</strong></td>
+                    <td>Baza de referință (1x)</td>
+                    <td>Creștere de 3.5x</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">Slide 04/09</div>
+</div>
+
+<!-- SLIDE 5: AVANTAJE (PROS) -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Părți Pozitive (Inginerie Eficientă)</h2>
+    </div>
+    <div class="content">
+        <div class="icon-box">
+            <h3 class="pros">1. Operare Hands-Free</h3>
+            <p>Operatorul nu mai trebuie să lase piesele din mână pentru a scana un cod de bare sau pentru a confirma depunerea pe un ecran.</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="pros">2. Validare Fizică Robustă</h3>
+            <p>Senzorul ToF asigură că piesa a ajuns în cutia *corectă*. Dacă mâna intră în cutia greșită, sistemul alarmează instantaneu.</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="pros">3. Scalabilitate Software</h3>
+            <p>Adăugarea unei piese noi în inventar se face prin reantrenarea modelului AI, nu prin schimbarea hardware-ului.</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="pros">4. UX Industrial (Premium)</h3>
+            <p>Utilizarea diffuser-elor 3D și a culorilor standardizate (Verde/Albastru/Roșu) reduce stresul vizual al angajatului.</p>
+        </div>
+    </div>
+    <div class="footer">Slide 05/09</div>
+</div>
+
+<!-- SLIDE 6: LIMITĂRI ȘI PROVOCĂRI (CONS) -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Limitări (Analiză Obiectivă)</h2>
+    </div>
+    <div class="content">
+        <div class="icon-box">
+            <h3 class="cons">1. Dependența de Mediu</h3>
+            <p>Senzorii ToF și Camera pot fi afectați de praf industrial sau de schimbări bruște de lumină ambientală (necesită calibrare).</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="cons">2. Efort Inițial (Dataset)</h3>
+            <p>Deși scalabil, setul de date inițial necesită timp pentru antrenare de calitate pentru a evita "false positives".</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="cons">3. Costul per Unitate</h3>
+            <p>Spre deosebire de un sistem cu bază de date simplă, aici avem un cost hardware fix (senzor + LED) pentru *fiecare* locație de depozitare.</p>
+        </div>
+        <div class="icon-box">
+            <h3 class="cons">4. Complexitate Electronică</h3>
+            <p>Cablarea a zeci de senzori I2C necesită multiplexoare (ex: TCA9548A) și o management riguros al integrității semnalului.</p>
+        </div>
+    </div>
+    <div class="footer">Slide 06/09</div>
+</div>
+
+<!-- SLIDE 7: UTILIZARE REALĂ ȘI EFICIENȚĂ -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Impactul asupra Eficienței Real-World</h2>
+    </div>
+    <div class="content">
+        <div>
+            <h3>Scenariu Industrial</h3>
+            <p>Într-un depozit de asamblare tablouri electrice:</p>
+            <ul>
+                <li><i class="fa-solid fa-arrow-right"></i> <strong>Faza Put:</strong> Identificarea automată a siguranțelor de diferite amperaje (care arată aproape identic).</li>
+                <li><i class="fa-solid fa-arrow-right"></i> <strong>Faza Pick:</strong> Ghidarea către bin-ul corect pentru un kit specific de montaj.</li>
+            </ul>
+        </div>
+        <div class="icon-box" style="background: rgba(0, 200, 83, 0.05); border-color: var(--success);">
+            <h3 style="color: var(--success);">Rezultat Măsurat</h3>
+            <p style="font-size: 24px; font-weight: 700;">-70% Timp de Căutare</p>
+            <p>Un operator poate procesa 3 kituri în timpul în care înainte procesa unul singur.</p>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+            <p>Sistemul plătește investiția (ROI) în mai puțin de 3 luni de operare intensivă.</p>
+        </div>
+    </div>
+    <div class="footer">Slide 07/09</div>
+</div>
+
+<!-- SLIDE 8: DESIGN PREMIUM (3D PRINT) -->
+<div class="slide">
+    <div class="slide-header">
+        <h2>Design Industrial & Estetică (3D Printing)</h2>
+    </div>
+    <div class="content">
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <p>Utilizarea imprimantei 3D nu este doar pentru aspect, ci pentru **funcționalitate inginerească**:</p>
+            <ul>
+                <li><strong>Capac de Difuzie:</strong> Strat de 1mm optimizat pentru dispersia fotonilor (lumina devine o bară solidă).</li>
+                <li><strong>Montură Senzor:</strong> Unghi fix de 90° pentru VL53L0X, eliminând erorile de paralaxă.</li>
+                <li><strong>Modularitate:</strong> Sistem de prindere rapidă pe profil de aluminiu V-Slot.</li>
+            </ul>
+        </div>
+        <div style="background: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+            <!-- Placeholder for 3D model image -->
+            <div style="text-align: center; color: var(--text-dim);">
+                <i class="fa-solid fa-layer-group" style="font-size: 80px; margin-bottom: 20px;"></i>
+                <p>Reprezentare Concept: Carcasă Bin Smart</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">Slide 08/09</div>
+</div>
+
+<!-- SLIDE 9: CONCLUZIE -->
+<div class="slide">
+    <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <i class="fa-solid fa-circle-check" style="font-size: 80px; color: var(--success); margin-bottom: 30px;"></i>
+        <h1>Concluzie: Viitorul este Hibrid</h1>
+        <p style="max-width: 800px; font-size: 22px; line-height: 1.6; margin-top: 20px;">
+            Sistemul prezentat nu este doar un accesoriu tehnologic, ci o necesitate în logistica modernă. Prin combinarea **văzului artificial (AI)** cu **senzorii fizici (IoT)**, creăm un mediu de lucru în care eroarea este imposibilă, iar productivitatea este limitată doar de viteza fizică a operatorului.
+        </p>
+        <div style="margin-top: 40px; font-weight: 600; color: var(--secondary);">
+            Întrebări și Discuții
+        </div>
+    </div>
+    <div class="footer">Slide 09/09</div>
+</div>
+
+</body>
+</html>
