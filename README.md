@@ -44,3 +44,14 @@ Sistemul funcționează într-o buclă închisă (**Closed-Loop Control**):
 ### Prerechizite
 ```bash
 pip install -r requirements.txt
+
+
+https://universe.roboflow.com/roboflow-100/printed-circuit-board/dataset/4
+copy-paste to google colab:!pip install roboflow
+
+from roboflow import Roboflow
+rf = Roboflow(api_key="FuzPab88leP6KJIzzbsh")
+project = rf.workspace("roboflow-100").project("printed-circuit-board")
+version = project.version(4)
+dataset = version.download("yolo26")
+
